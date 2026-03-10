@@ -6,7 +6,7 @@ from show import Screen
 def main():
     map = Map()
     parse_map(map, "map_example.txt")
-    screen = Screen()
+    screen = Screen(map)
     
 
 

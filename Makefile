@@ -1,29 +1,39 @@
-PYTHON = python3
 VENV = venv
+PYTHON = $(VENV)/bin/python
 PIP = $(VENV)/bin/pip
-PY = $(VENV)/bin/python
 
-install:
-	$(PYTHON) -m venv $(VENV)
-	$(PIP) install --upgrade pip
-	$(PIP) install pygame flake8 mypy
+MAIN_FILE = main.py
+REQUIREMENTS = requirements.txt
 
-run:
-	$(PY) main.py
+all: banner run
 
-debug:
-	$(PY) -m pdb main.py
+banner:
+	@echo "======================================"
+	@echo "         Fly-In Drones Simulator      "
+	@echo "======================================"
+
+install: $(VENV)/bin/activate
+
+$(VENV)/bin/activate: $(REQUIREMENTS)
+	@echo "Creating virtual environment..."
+	python3 -m venv $(VENV)
+	@echo "Upgrading pip..."
+	@$(PIP) install --upgrade pip
+	@echo "Installing requirements..."
+	@$(PIP) install -r $(REQUIREMENTS)
+	@touch $(VENV)/bin/activate
+
+run: install
+	@echo "Running Fly-In Simulator..."
+	$(PYTHON) $(MAIN_FILE)
+
+debug: install
+	@echo "Running Fly-In Simulator in debug mode..."
+	$(PYTHON) -m pdb $(MAIN_FILE)
 
 clean:
-	rm -rf __pycache__
-	rm -rf .mypy_cache
-	rm -rf $(VENV)
-	find . -name "*.pyc" -delete
+	@echo "Cleaning temporary files and virtual environment..."
+	@rm -rf __pycache__ .mypy_cache
+	@rm -rf $(VENV)
 
-lint:
-	$(PY) -m flake8 .
-	$(PY) -m mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
-
-lint-strict:
-	$(PY) -m flake8 .
-	$(PY) -m mypy . --strict
+.PHONY: all banner install run debug clean

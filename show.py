@@ -1,9 +1,8 @@
 import pygame
-from parse import map
 
 class Screen:
 
-    def __init__(self):
+    def __init__(self, map):
         self.width = map.width * 20 + 10
         self.heigth = map.heigth * 20 + 10
     
