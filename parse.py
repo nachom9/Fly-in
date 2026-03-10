@@ -5,6 +5,8 @@ class Map:
         self.zones = {}
         self.connections = {}
         self.drones: int = 0
+        self.width: int = 0
+        self.heigth: int = 0
 
     def add_zone(self, zone):
         self.zones[zone.name] = zone
@@ -38,9 +40,8 @@ class Zone:
         return cls(name, x, y, color, zone_type, max_drones)
 
 
-def parse_map(map):
-    import_map = "map_example.txt"
-    with open(import_map, 'r') as file:
+def parse_map(map, map_name):
+    with open(map_name, 'r') as file:
         for line in file:
             line = line.strip()
             if ':' in line:
@@ -48,7 +49,7 @@ def parse_map(map):
                 if key in ('hub', 'start_hub', 'end_hub'):
                     data = value.split()
                     metadata = value.split('[')[1]
-                    zone = Zone.process_metadata(data[0], data[1], data[2], metadata)
+                    zone = Zone.process_metadata(data[0], int(data[1]), int(data[2]), metadata)
                     map.add_zone(zone)
                 elif key == 'connection':
                     zone_a, zone_b = value.split('-', 1)
@@ -56,13 +57,7 @@ def parse_map(map):
                     map.connections.setdefault(zone_b, []).append(zone_a)
                 elif key == 'nb_drones':
                     map.drones = int(value)
-
-
-
-                
-                
-
-
-        
-    
-
+                    
+    map.width = max(z.x for z in map.zones.values()) + 1
+    map.heigth = max(z.y for z in map.zones.values()) + 1
+    print(map.width, map.heigth)
