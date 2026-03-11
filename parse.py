@@ -1,38 +1,8 @@
-from colors import PrintColors as c
-
-
-class Map:
-
-    def __init__(self):
-        self.zones = {}
-        self.connections = {}
-        self.drones: int = 0
-        self.width: int = 0
-        self.heigth: int = 0
-
-    def add_zone(self, zone):
-        self.zones[zone.coord] = zone
-
-    def show_map(self):
-        for y in range(self.heigth):
-            print()
-            for x in range(self.width):
-                if (x,y) in self.zones.keys():
-                    if self.zones[(x, y)].zone_type == "priority":
-                        c.print_green(f"({x}, {y})")
-                    elif self.zones[(x, y)].zone_type == "restricted":
-                        c.print_yellow(f"({x}, {y})")
-                    elif self.zones[(x, y)].zone_type == "blocked":
-                        c.print_red(f"({x}, {y})")
-                    else:
-                        print(f"({x}, {y})", end=' ')
-                else:
-                    print("      ", end=' ')
-
+from algorithm import Map
 
 class Zone:
 
-    def __init__(self, name, x, y, color, zone_type, max_drones):
+    def __init__(self, name, x, y, color, zone_type, max_drones, drones):
         self.name = name
         self.x = x
         self.y = y
@@ -40,6 +10,8 @@ class Zone:
         self.color = color
         self.zone_type = zone_type
         self.max_drones = max_drones
+        self.drones = drones
+
 
     @classmethod
     def process_metadata(cls, name, x, y, metadata):
@@ -55,8 +27,12 @@ class Zone:
                 zone_type = value
             elif key == 'max_drones':
                 max_drones = int(value)
+        if name == 'start':
+            drones = max_drones
+        else:
+            drones = 0
 
-        return cls(name, x, y, color, zone_type, max_drones)
+        return cls(name, x, y, color, zone_type, max_drones, drones)
 
 
 def parse_map(map, map_name):
@@ -73,7 +49,6 @@ def parse_map(map, map_name):
                 elif key == 'connection':
                     zone_a, zone_b = value.split('-', 1)
                     map.connections.setdefault(zone_a, []).append(zone_b)
-                    map.connections.setdefault(zone_b, []).append(zone_a)
                 elif key == 'nb_drones':
                     map.drones = int(value)
                     

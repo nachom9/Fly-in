@@ -7,7 +7,22 @@ def main():
     map = Map()
     parse_map(map, "map_example.txt")
     map.show_map()
-    
+    print('\n\n')
+    map.turn()
+    map.turn()
+    map.turn()
+    map.turn()
+    map.turn()
+    map.turn()
+    map.turn()
+    map.turn()
+    map.turn()
+    map.turn()
+    map.turn()
+    map.turn()
+    map.turn()
+
+
 
 
 if __name__ == "__main__":
