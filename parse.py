@@ -16,6 +16,8 @@ class Zone:
     @classmethod
     def process_metadata(cls, name, x, y, metadata):
         zone_type = 'normal'
+        drones = {}
+        i = 1
         max_drones = 1
         color = None
         data = metadata.split()
@@ -28,9 +30,11 @@ class Zone:
             elif key == 'max_drones':
                 max_drones = int(value)
         if name == 'start':
-            drones = max_drones
+            for drone in range(max_drones):
+                drones[f'D{i}'] = True
+                i += 1
         else:
-            drones = 0
+            drones = {}
 
         return cls(name, x, y, color, zone_type, max_drones, drones)
 
@@ -47,10 +51,20 @@ def parse_map(map, map_name):
                     zone = Zone.process_metadata(data[0], int(data[1]), int(data[2]), metadata)
                     map.add_zone(zone)
                 elif key == 'connection':
-                    zone_a, zone_b = value.split('-', 1)
-                    map.connections.setdefault(zone_a, []).append(zone_b)
+                    if '[' in value:
+                        zones, metadata = value.split('[', 1)
+                        max_link = int(metadata.strip('[]').split('=', 1)[1])
+                        zone_a, zone_b = zones.strip().split('-')
+                    else:
+                        zone_a, zone_b = value.strip().split('-')
+                        max_link = -1
+                    map.connections.setdefault(zone_a, {})[zone_b] = max_link
+
                 elif key == 'nb_drones':
                     map.drones = int(value)
-                    
+    for zo, con in map.connections.items():
+        for z in list(con.keys()):
+            if z not in map.n_zones:
+                map.connections[zo].pop(z)
     map.width = max(z.x for z in map.zones.values()) + 1
     map.heigth = max(z.y for z in map.zones.values()) + 1

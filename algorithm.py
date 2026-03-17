@@ -32,7 +32,7 @@ class Map:
                     print("      ", end=' ')
 
     def has_exit(self, zone):
-        if zone.name == "goal":
+        if "goal" in zone.name:
             return True
         elif zone.name not in self.connections.keys():
             return False
@@ -41,32 +41,40 @@ class Map:
             if result == True:
                 return True
 
+    def shortest_path(self):
+        
+
     def can_move(self, zone):
         capacity = 0
-        prox = [z for z in self.connections[zone.name] if self.has_exit(self.n_zones[z])]
+        prox = [(z, c) for (z, c) in self.connections[zone.name].items() if self.has_exit(self.n_zones[z])]
         for con in prox:
-            capacity += self.n_zones[con].max_drones - self.n_zones[con].drones
+            capacity += self.n_zones[con].max_drones - len(self.n_zones[con].drones)
         return capacity > 0
-    
-    def move_drone(self, moves_from, moves_to):
-        
-        moves_from.drones -= 1
-        moves_to.drones += 1
-        print(moves_from.coord, moves_to.coord, end=' | ')
-        
+
+    def move_drone(self, moves_from, moves_to, drone):
+        moves_from.drones.pop(drone)
+        if moves_to.zone_type == "restricted":
+            moves_to.drones[drone] = False
+        else:
+            moves_to.drones[drone] = True
+        print(drone, moves_to.name, sep='-', end=' ')
+
+
     def empty_zone(self, zone):
         prox = self.connections[zone.name]
-        for _ in range(zone.drones):
+        for drone in zone.drones.keys():
+            if zone.drones[drone] == False:
+                zone.drones[drone] = True
+                continue
             for z in prox:
-                if (self.n_zones[z].drones < self.n_zones[z].max_drones
+                if (len(self.n_zones[z].drones) < self.n_zones[z].max_drones
                     and self.has_exit(self.n_zones[z])):
-                    self.move_drone(zone, self.n_zones[z])
+                    self.move_drone(zone, self.n_zones[z], drone)
                     return
-    
+
     def turn(self):
-        occ_zones = [z for z in self.zones.values() if z.drones > 0 and z.name != 'goal']
+        occ_zones = [z for z in self.zones.values() if len(z.drones) > 0 and 'goal' not in z.name][::-1]
         for z in occ_zones:
-            print(f"\nocc: {z.coord}")
-            while self.can_move(z) and z.drones > 0:
+            if self.can_move(z) and len(z.drones) > 0:
                 self.empty_zone(z)
         print()
