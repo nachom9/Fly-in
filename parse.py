@@ -18,7 +18,7 @@ class Zone:
         zone_type = 'normal'
         drones = {}
         i = 1
-        max_drones = map.drones
+        max_drones = 1
         color = None
         data = metadata.split()
         for item in data:
@@ -29,10 +29,6 @@ class Zone:
                 zone_type = value
             elif key == 'max_drones':
                 max_drones = int(value)
-        if name == 'start':
-            for drone in range(map.drones):
-                drones[f'D{i}'] = True
-                i += 1
 
         return cls(name, x, y, color, zone_type, max_drones, drones)
 
@@ -50,8 +46,13 @@ def parse_map(map, map_name):
                     map.add_zone(zone)
                     if key == 'start_hub':
                         map.start = zone
+                        i = 1
+                        for drone in range(map.drones):
+                            zone.drones[f'D{i}'] = True
+                            i += 1
                     elif key == 'end_hub':
                         map.end = zone
+                        zone.max_drones = map.drones
                 elif key == 'connection':
                     if '[' in value:
                         zones, metadata = value.split('[', 1)
@@ -59,7 +60,7 @@ def parse_map(map, map_name):
                         zone_a, zone_b = zones.strip().split('-')
                     else:
                         zone_a, zone_b = value.strip().split('-')
-                        max_link = -1
+                        max_link = 1
                     map.connections.setdefault(zone_a, {})[zone_b] = max_link
 
                 elif key == 'nb_drones':

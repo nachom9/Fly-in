@@ -42,6 +42,7 @@ class Map:
             if result == True:
                 return True
 
+
     def shortest_path(self, start):
         parents = {}
         path = []
@@ -100,17 +101,15 @@ class Map:
         for drone in list(zone.drones.keys()):
             path = self.shortest_path(start=zone)
             if not path:
-                print(drone, path)
                 continue
             prox = path[1]
             if zone.drones[drone] == False:
                 zone.drones[drone] = True
                 continue
             link = self.connections[zone.name][prox.name]
-            if len(prox.drones) < prox.max_drones and (link == -1 or link > 0):
+            if len(prox.drones) < prox.max_drones and link > 0:
                 self.move_drone(zone, prox, drone)
-                if link != -1:
-                    link -= 1
+                link -= 1
             self.connections[zone.name][prox.name] = link
 
     def turn(self):
