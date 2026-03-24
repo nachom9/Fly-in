@@ -10,17 +10,12 @@ def main():
     map.show_map()
     print('\n\n')
     turns = 0
-    map.path = map.shortest_path()
-    for p in map.path:
-        print(p.name)
-    print(map.path)
+    map.path = map.shortest_path(map.start)
+
     while len(map.end.drones) < map.drones:
         map.turn()
         turns += 1
     print(f"Turns: {turns}")
-    #pprint.pprint(map.connections)
-    #return
-
 
 if __name__ == "__main__":
     main()

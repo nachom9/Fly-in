@@ -6,6 +6,7 @@ class Map:
     def __init__(self):
         self.zones = {}
         self.n_zones = {}
+        self.r_zones = {}
         self.connections = {}
         self.drones: int = 0
         self.width: int = 0
@@ -31,7 +32,6 @@ class Map:
                         print(f"({x}, {y})", end=' ')
                 else:
                     print("      ", end=' ')
-
     def has_exit(self, zone):
         if "goal" in zone.name:
             return True
@@ -42,70 +42,91 @@ class Map:
             if result == True:
                 return True
 
-    def shortest_path(self):
+    def shortest_path(self, start):
         parents = {}
         path = []
-        queue = [(0, self.start)]
-        visited = set([self.start])
+        queue = [(0, start)]
+        best_cost = {start: 0}
 
         while queue:
             min_index = min(range(len(queue)), key=lambda index: queue[index][0])
             cost, zone = queue.pop(min_index)
-            cost += len(zone.drones)
             if zone == self.end:
                 break
-            for next_zone in self.connections.get(zone.name, {}):
-                if next_zone not in visited:
-                    if self.n_zones[next_zone].zone_type == 'restricted':
-                        next_cost = 2
-                    else:
-                        next_cost = 1
-                    queue.append((next_cost + cost, self.n_zones[next_zone]))
-                    visited.add(next_zone)
-                    parents[next_zone] = zone
+            for next_name in self.connections.get(zone.name, {}):
+                next_zone = self.n_zones[next_name]
+                pen = 1
+                if zone.max_drones != self.drones:
+                    pen = (self.drones - (next_zone.max_drones - len(next_zone.drones))) ** 15
+                if next_zone.zone_type == 'restricted':
+                    next_cost = 2 * pen
+                else:
+                    next_cost = 1 * pen
+                new_cost = next_cost + cost
+                if (next_name not in best_cost.keys() or new_cost < best_cost[next_name]):
+                    queue.append((new_cost, next_zone))
+                    parents[next_name] = zone
+                    best_cost[next_name] = new_cost
 
         current = self.end
         try:
-            while current != self.start:
+            while current != start:
                 path.append(current)
                 current = parents[current.name]
         except KeyError:
-            print("No solution.")
-            exit(1)
-        path.append(self.start)
+            return
+        path.append(start)
 
         return path[::-1]
 
-
-    def can_move(self, zone):
-        capacity = 0
-        prox = [z for z in self.connections[zone.name].keys() if self.has_exit(self.n_zones[z])]
-        for con in prox:
-            capacity += self.n_zones[con].max_drones - len(self.n_zones[con].drones)
-        return capacity > 0
-
     def move_drone(self, moves_from, moves_to, drone):
-        moves_from.drones.pop(drone)
-        if moves_to.zone_type == "restricted":
-            moves_to.drones[drone] = False
+        if moves_from:
+            moves_from.drones.pop(drone)
+            if moves_to.zone_type == "restricted":
+                self.r_zones[moves_to] = (drone, moves_from)
+                moves_to.drones[drone] = False
+                print(drone, f"{moves_from.name}-{moves_to.name}", sep='-', end=' ')
+            else:
+                moves_to.drones[drone] = True
+                print(drone, moves_to.name, sep='-', end=' ')
         else:
-            moves_to.drones[drone] = True
-        print(drone, moves_to.name, sep='-', end=' ')
-
+            if moves_to.zone_type == "restricted":
+                moves_to.drones[drone] = False
+            else:
+                moves_to.drones[drone] = False
+            print(drone, moves_to.name, sep='-', end=' ')
 
     def empty_zone(self, zone):
-        prox = self.path[self.path.index(zone) + 1]
-        for drone in zone.drones.keys():
+        for drone in list(zone.drones.keys()):
+            path = self.shortest_path(start=zone)
+            if not path:
+                print(drone, path)
+                continue
+            prox = path[1]
             if zone.drones[drone] == False:
                 zone.drones[drone] = True
                 continue
-            if len(prox.drones) < prox.max_drones:
+            link = self.connections[zone.name][prox.name]
+            if len(prox.drones) < prox.max_drones and (link == -1 or link > 0):
                 self.move_drone(zone, prox, drone)
-                return
+                if link != -1:
+                    link -= 1
+            self.connections[zone.name][prox.name] = link
 
     def turn(self):
-        occ_zones = [z for z in self.path if len(z.drones) > 0 and 'goal' not in z.name]
-        for z in occ_zones:
-            if self.can_move(z) and len(z.drones) > 0:
+        temp_connections = {
+            zone: connections.copy()
+            for zone, connections in self.connections.items()
+        }
+        for moves_to, (drone, moves_from) in self.r_zones.items():
+            self.move_drone(moves_from= None, moves_to = moves_to, drone = drone)
+            if self.connections[moves_from.name][moves_to.name] != -1:
+                self.connections[moves_from.name][moves_to.name] -= 1
+        self.r_zones = {}
+
+        occ_zones = [z for z in self.zones.values() if len(z.drones) > 0 and z != self.end]
+        for z in occ_zones[::-1]:
+            if len(z.drones) > 0:
                 self.empty_zone(z)
+        self.connections = temp_connections
         print()

@@ -18,7 +18,7 @@ class Zone:
         zone_type = 'normal'
         drones = {}
         i = 1
-        max_drones = 1
+        max_drones = map.drones
         color = None
         data = metadata.split()
         for item in data:
