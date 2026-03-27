@@ -38,12 +38,12 @@ class Zone:
         zone_type = 'normal'
         drones = {}
         max_drones = 1
-        color = None
+        color = 'reset'
         if metadata:
             data = metadata.split()
             for item in data:
                 key, value = item.strip('[]').split('=')
-                if key == 'color':
+                if key == 'color' and value in map.colors:
                     color = value
                 elif key == 'zone':
                     zone_type = value

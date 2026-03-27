@@ -9,6 +9,23 @@ class Map:
         self.path = []
         self.start = None
         self.end = None
+        self.colors = {
+            "black": "\033[30m",
+            "red": "\033[31m",
+            "green": "\033[32m",
+            "yellow": "\033[33m",
+            "blue": "\033[34m",
+            "purple": "\033[35m",
+            "cyan": "\033[36m",
+            "white": "\033[37m",
+            "orange": "\033[38;5;208m",
+            "brown": "\033[38;5;94m",
+            "maroon": "\033[38;5;52m",
+            "darkred": "\033[38;5;88m",
+            "violet": "\033[38;5;177m",
+            "crimson": "\033[38;5;160m",
+            "reset": "\033[0m"
+            }
 
     def add_zone(self, zone):
         self.zones[zone.coord] = zone
@@ -80,21 +97,22 @@ class Map:
         return path[::-1]
 
     def move_drone(self, moves_from, moves_to, drone):
+
         if moves_from:
             moves_from.drones.pop(drone)
             if moves_to.zone_type == "restricted":
                 self.r_zones[moves_to] = (drone, moves_from)
                 moves_to.drones[drone] = False
-                print(drone, f"{moves_from.name}-{moves_to.name}", sep='-', end=' ')
+                print(f"{self.colors[moves_to.color]}{drone}{moves_to.name}{self.colors['reset']}", sep='-', end=' ')
             else:
                 moves_to.drones[drone] = True
-                print(drone, moves_to.name, sep='-', end=' ')
+                print(f"{self.colors[moves_to.color]}{drone}{moves_to.name}{self.colors['reset']}", sep='-', end=' ')
         else:
             if moves_to.zone_type == "restricted":
                 moves_to.drones[drone] = False
             else:
                 moves_to.drones[drone] = False
-            print(drone, moves_to.name, sep='-', end=' ')
+            print(f"{self.colors[moves_to.color]}{drone}{moves_to.name}{self.colors['reset']}", sep='-', end=' ')
 
     def empty_zone(self, zone):
         for drone in list(zone.drones.keys()):
