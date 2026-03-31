@@ -6,7 +6,7 @@
 
 Fly-In Drones is a pathfinding and simulation project where multiple drones must navigate through a network of interconnected zones to reach a final destination.
 
-The goal is to simulate how drones move from a **start hub** to an **end hub**, respecting constraints such as:
+The goal is to simulate how drones move from a start hub to an end hub, respecting constraints such as:
 - Zone capacity limits
 - Connection capacity limits
 - Special zone behaviors (restricted, priority, blocked)
@@ -15,129 +15,141 @@ The program parses a custom map file, computes optimal paths, and simulates dron
 
 ---
 
-## Instructions
-
-### Installation
+## Installation
 
 Clone the repository:
 
-git clone <https://github.com/nachom9/fly-in.git>
-cd <fly-in>
+git clone https://github.com/nachom9/fly-in.git
+cd fly-in
 
 Create a virtual environment and install dependencies:
 
-make install
-Execution
+make install  
+
+---
+
+## Usage
 
 Run the simulator:
 
-make run
+make run  
 
 By default, it uses:
 
-map.txt
+map.txt  
 
-You can specify another map:
+Run with a custom map:
 
-make run MAP=your_map.txt
-Debug Mode
-make debug MAP=your_map.txt
-Linting
-make lint
+make run MAP=your_map.txt  
+
+---
+
+## Debug
+
+make debug MAP=your_map.txt  
+
+---
+
+## Linting
+
+make lint  
 
 Strict mode:
 
-make lint-strict
-Clean Environment
-make clean
-Algorithm & Implementation
-Pathfinding Strategy
+make lint-strict  
+
+---
+
+## Clean
+
+make clean  
+
+---
+
+## Algorithm & Implementation
+
+### Pathfinding Strategy
 
 The project uses a modified Dijkstra-like algorithm to compute paths dynamically.
 
-Key characteristics:
+Costs are adjusted based on:
+- Zone occupancy
+- Zone capacity
+- Zone type (restricted zones increase cost)
+- Priority zones slightly reduce cost
 
-Each zone transition has a cost
-Costs are dynamically adjusted based on:
-Number of drones in the next zone
-Maximum capacity of the zone
-Zone type (restricted zones increase cost)
-Priority zones slightly reduce cost
+This allows drones to avoid congestion and distribute across multiple paths.
 
-This allows drones to:
+---
 
-Avoid congestion
-Spread across multiple paths
-Adapt to real-time conditions
-Movement Simulation
+### Movement Simulation
 
 The simulation runs in discrete turns:
 
-Drones already in restricted zones are resolved first
-Zones are processed in reverse order to prioritize forward movement
-Each drone attempts to:
-Compute a path to the goal
-Move to the next zone if capacity allows
+1. Restricted zone movements are resolved first  
+2. Zones are processed in reverse order  
+3. Each drone computes a path and moves if possible  
 
-Connection capacities are temporarily reduced per turn to enforce constraints.
+Connection capacities are temporarily updated each turn.
 
-Handling Constraints
+---
 
-The system enforces:
+### Constraints Handling
 
-Zone capacity (max_drones)
-Connection capacity (max_link)
-Blocked zones (cannot be entered)
-Restricted zones (special delayed movement behavior)
-Visual Representation
+- Zone capacity (max_drones)  
+- Connection capacity (max_link)  
+- Blocked zones (cannot be entered)  
+- Restricted zones (delayed movement behavior)  
 
-The simulation includes a visual output in the terminal:
+---
 
-Each drone movement is printed per turn
+## Visual Representation
 
-Format:
+The simulation outputs drone movements in the terminal.
 
-D1-zoneA-zoneB
-Zones can have colors defined via metadata:
-Colors are displayed using ANSI escape codes
-This improves:
-Readability of simulation steps
-Tracking individual drone paths
-Understanding congestion and flow
-Features
-Custom map parser with validation
-Multiple drone support
-Dynamic pathfinding
-Zone types:
-normal
-restricted
-priority
-blocked
-Connection capacity constraints
-Turn-based simulation
-Colored terminal output
-Type hints with full mypy compliance
-Makefile automation
-Resources
-Documentation & References
-Python typing:
-https://docs.python.org/3/library/typing.html
-PEP 257 (Docstrings):
-https://peps.python.org/pep-0257/
-Dijkstra Algorithm:
-https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
-Graph theory basics:
-https://en.wikipedia.org/wiki/Graph_theory
-AI Usage
+Each turn prints movements like:
 
-AI (ChatGPT) was used as a support tool during development for:
+D1-A-B D2-A-C  
 
-Assisting with type hints and mypy compliance
-Generating documentation (README and docstrings)
+Colors are used via ANSI escape codes to improve readability.
 
-All algorithm design decisions, implementation logic, and debugging validation were performed and understood by the author.
+This allows:
+- Clear tracking of drone movements
+- Easy identification of congestion
+- Better understanding of simulation progress
 
-Notes
-The program strictly validates input maps and provides clear error messages.
-All functions include type hints and pass mypy checks.
-The project follows PEP 8 and PEP 257 conventions.
+---
+
+## Features
+
+- Custom map parser with validation  
+- Dynamic pathfinding  
+- Multiple drones support  
+- Zone types: normal, restricted, priority, blocked  
+- Capacity constraints for zones and connections  
+- Turn-based simulation  
+- Colored terminal output  
+- Type hints with full mypy compliance  
+- Makefile automation  
+
+---
+
+## Resources
+
+### References
+
+- Python typing: https://docs.python.org/3/library/typing.html  
+- PEP 257: https://peps.python.org/pep-0257/  
+- Dijkstra Algorithm: https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm  
+- Graph Theory: https://en.wikipedia.org/wiki/Graph_theory  
+
+---
+
+### AI Usage
+
+AI (ChatGPT) was used as a support tool for:
+
+- Type hints and mypy compliance  
+- Writing documentation (README and docstrings)  
+
+All core logic and implementation decisions were made and understood by the author.
