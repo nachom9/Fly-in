@@ -135,6 +135,61 @@ This allows:
 
 ---
 
+## File Format
+
+The map file defines the simulation structure using a simple line-based format.
+
+### Elements
+
+- **Zones**
+  - `hub`: a normal zone
+  - `start_hub`: starting zone where drones are created
+  - `end_hub`: destination zone where drones must arrive
+- **Connections**
+  - Define links between zones
+- **Drones**
+  - Total number of drones in the simulation
+- **Metadata (optional)**
+  - `[color=...]`
+  - `[zone=...]` (normal, blocked, restricted, priority)
+  - `[max_drones=...]`
+  - `[max_link=...]` (for connections)
+
+---
+
+### Example Map
+
+nb_drones: 3  
+
+start_hub: A 0 0 [color=green]  
+hub: B 1 0  
+hub: C 2 0 [zone=priority color=blue]  
+end_hub: D 3 0  
+
+connection: A-B  
+connection: B-C [max_link=2]  
+connection: C-D  
+
+---
+
+### Explanation
+
+- **nb_drones: 3**  
+  Defines that 3 drones will be simulated.
+
+- **Zones**
+  - `A` is the start zone at coordinates (0, 0)
+  - `D` is the end zone at coordinates (3, 0)
+  - `B` and `C` are intermediate zones
+  - Metadata can define:
+    - color (for output visualization)
+    - zone type (priority, restricted, blocked)
+    - max_drones (capacity of the zone)
+
+- **Connections**
+  - `A-B`: simple connection with default capacity of 1
+  - `B-C [max_link=2]`: connection with higher capacity
+  - `C-D`: final connection to the end
 ## Resources
 
 ### References
@@ -151,5 +206,3 @@ AI (ChatGPT) was used as a support tool for:
 
 - Type hints and mypy compliance  
 - Writing documentation (README and docstrings)  
-
-All core logic and implementation decisions were made and understood by the author.
