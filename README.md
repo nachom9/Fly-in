@@ -14,9 +14,9 @@ The goal is to simulate how drones move from a start hub to an end hub, respecti
 The program parses a custom map file, computes optimal paths, and simulates drone movements turn by turn until all drones reach the goal.
 
 ---
-### Instructions
+## Instructions
 ----
-## Installation
+### Installation
 
 Clone the repository:
 
@@ -29,7 +29,7 @@ make install
 
 ---
 
-## Usage
+### Usage
 
 Run the simulator:
 ```bash
@@ -46,13 +46,13 @@ make run MAP=your_map.txt
 ```
 ---
 
-## Debug
+### Debug
 ```bash
 make debug MAP=your_map.txt  
 ```
 ---
 
-## Linting
+### Linting
 ```bash
 make lint  
 ```
@@ -62,7 +62,7 @@ make lint-strict
 ```
 ---
 
-## Clean
+### Clean
 ```bash
 make clean  
 ```
