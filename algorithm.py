@@ -9,8 +9,18 @@ from typing import Dict, Optional, Tuple
 
 
 class Map:
+    """
+    Represents the simulation map containing zones, connections, and drones.
+
+    This class handles pathfinding and simulation logic for moving drones
+    from the start zone to the end zone while considering constraints like
+    capacity and zone types.
+    """
 
     def __init__(self) -> None:
+        """
+        Initialize an empty map with all required data structures.
+        """
         self.zones: Dict[Tuple[int, int], Zone] = {}
         self.n_zones: Dict[str, Zone] = {}
         self.r_zones: Dict[Zone, Tuple[str, Zone]] = {}
@@ -41,10 +51,32 @@ class Map:
         }
 
     def add_zone(self, zone: "Zone") -> None:
+        """
+        Add a zone to the map.
+
+        Args:
+            zone (Zone): The zone to add.
+        """
         self.zones[zone.coord] = zone
         self.n_zones[zone.name] = zone
 
     def shortest_path(self, start: "Zone") -> Optional[list["Zone"]]:
+        """
+        Compute the shortest path from a given zone to the end zone.
+
+        The path cost is dynamically adjusted based on zone congestion
+        and zone types (e.g., restricted, priority).
+
+        Args:
+            start (Zone): The starting zone.
+
+        Returns:
+            Optional[list[Zone]]: The computed path from start to end,
+            or None if no valid path is found.
+
+        Raises:
+            KeyError: If no path exists from the global start zone.
+        """
         parents: Dict[str, Zone] = {}
         path: list[Zone] = []
         queue: list[Tuple[int, Zone]] = [(0, start)]
@@ -86,6 +118,17 @@ class Map:
 
     def move_drone(self, moves_from: Optional["Zone"], moves_to: "Zone",
                    drone: str) -> None:
+        """
+        Move a drone from one zone to another.
+
+        Handles restricted zones by delaying their movement resolution.
+
+        Args:
+            moves_from (Optional[Zone]): The origin zone,
+            or None for delayed moves.
+            moves_to (Zone): The destination zone.
+            drone (str): The drone identifier.
+        """
 
         if moves_from:
             moves_from.drones.pop(drone)
@@ -103,6 +146,14 @@ class Map:
                   f"{self.colors['reset']}", end=' ')
 
     def empty_zone(self, zone: "Zone") -> None:
+        """
+        Attempt to move all drones from a given zone.
+
+        Each drone computes its own path dynamically at each turn.
+
+        Args:
+            zone (Zone): The zone to process.
+        """
         for drone in list(zone.drones.keys()):
             path = self.shortest_path(start=zone)
             if not path:
@@ -118,6 +169,14 @@ class Map:
             self.connections[zone.name][prox.name] = link
 
     def turn(self) -> None:
+        """
+        Execute one simulation turn.
+
+        This includes:
+        - Resolving delayed movements from restricted zones
+        - Moving drones from occupied zones
+        - Resetting connection capacities after the turn
+        """
         temp_connections = {
             zone: connections.copy()
             for zone, connections in self.connections.items()

@@ -4,9 +4,9 @@ PIP = $(VENV)/bin/pip
 
 MAIN_FILE = main.py
 REQUIREMENTS = requirements.txt
+MAP ?= map.txt
 
 all: banner run
-MAP ?= map.txt
 
 banner:
 	@echo "======================================"
@@ -32,14 +32,14 @@ debug: install
 	@echo "Running Fly-In Simulator in debug mode..."
 	$(PYTHON) -m pdb $(MAIN_FILE) $(MAP)
 
-lint:
+lint: install
 	@echo "Running flake8 and mypy..."
 	@$(VENV)/bin/flake8 . --exclude venv
 	@$(VENV)/bin/mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
 
-lint-strict:
+lint-strict: install
 	@echo "Running strict lint..."
-	@$(VENV)/bin/flake8 .
+	@$(VENV)/bin/flake8 . --exclude venv
 	@$(VENV)/bin/mypy . --strict
 
 clean:

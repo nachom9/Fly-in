@@ -3,26 +3,36 @@ from algorithm import Map
 
 
 class MapParseError(Exception):
+    """Base exception for map parsing errors."""
     pass
 
 
 class InvalidConnectionError(MapParseError):
+    """Raised when a connection between zones is invalid."""
     pass
 
 
 class ZoneNotFoundError(MapParseError):
+    """Raised when a required zone (e.g., start or end) is missing."""
     pass
 
 
 class InvalidDroneNumberError(MapParseError):
+    """Raised when the number of drones is invalid."""
     pass
 
 
 class MetadataError(MapParseError):
+    """Raised when metadata format or values are invalid."""
     pass
 
 
 class Zone:
+    """
+    Represents a zone in the map.
+
+    A zone has coordinates, type, capacity, and may contain drones.
+    """
 
     def __init__(
         self,
@@ -34,6 +44,19 @@ class Zone:
         max_drones: int,
         drones: Dict[str, bool]
     ) -> None:
+        """
+        Initialize a zone.
+
+        Args:
+            name (str): Zone name.
+            x (int): X coordinate.
+            y (int): Y coordinate.
+            color (str): Display color.
+            zone_type (str): Type of zone
+            (normal, blocked, restricted, priority).
+            max_drones (int): Maximum number of drones allowed.
+            drones (Dict[str, bool]): Dictionary of drones in the zone.
+        """
         self.name: str = name
         self.x: int = x
         self.y: int = y
@@ -47,6 +70,24 @@ class Zone:
     def process_metadata(cls, name: str, x: int, y: int,
                          metadata: Optional[str], map: "Map",
                          line_count: int) -> "Zone":
+        """
+        Process metadata and create a Zone instance.
+
+        Args:
+            name (str): Zone name.
+            x (int): X coordinate.
+            y (int): Y coordinate.
+            metadata (Optional[str]): Metadata string.
+            map (Map): Map instance for validation.
+            line_count (int): Current line number for error reporting.
+
+        Returns:
+            Zone: The created zone.
+
+        Raises:
+            MetadataError: If zone type is invalid.
+            InvalidDroneNumberError: If max_drones is invalid.
+        """
         zone_type = 'normal'
         drones: Dict[str, bool] = {}
         max_drones = 1
@@ -75,6 +116,21 @@ class Zone:
 
 
 def parse_map(map: "Map", map_name: str) -> None:
+    """
+    Parse a map file and populate the Map object.
+
+    Args:
+        map (Map): Map instance to populate.
+        map_name (str): Path to the map file.
+
+    Raises:
+        MapParseError: For general format errors.
+        InvalidConnectionError: For invalid connections.
+        ZoneNotFoundError: If start or end zones are missing.
+        InvalidDroneNumberError: If drone count is invalid.
+        ValueError: For malformed numeric values.
+        FileNotFoundError: If the file cannot be opened.
+    """
     line_count = 1
     with open(map_name, 'r') as file:
         for line in file:
