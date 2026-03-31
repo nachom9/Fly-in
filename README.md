@@ -21,9 +21,8 @@ The program parses a custom map file, computes optimal paths, and simulates dron
 
 Clone the repository:
 
-```bash
-git clone <repository_url>
-cd <repository_name>
+git clone <https://github.com/nachom9/fly-in.git>
+cd <fly-in>
 
 Create a virtual environment and install dependencies:
 
